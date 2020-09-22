@@ -23,6 +23,7 @@ def connectionLoop(sock):
       #[bits, [IP, PORT]] -> tuple, IP : sender of IP, PORT : sender of PORT
       data, addr = sock.recvfrom(1024)
 
+
       #send packet
       #can only send bytes datatype,  send "hello!" with 'utf8' format to addr[0](IP) and addr[1](PORT)
       #sock.sendto(bytes("Hello!",'utf8'), (addr[0], addr[1]))
@@ -40,6 +41,22 @@ def connectionLoop(sock):
       #if it was new client
       else:
          if 'connect' in data:
+            #2 = ALL_CLIENT_INFO
+            allClientsInfo = {"cmd" : 2,
+                              "numOfClients" : len(clients),
+                              "allClients" : []}
+
+            for c in clients:
+               clientInfo = {}
+               clientInfo["IP"] = c[0]
+               clientInfo["PORT"] = c[1]
+               allClientsInfo["allClients"].append(clientInfo)
+
+            aci = json.dumps(allClientsInfo)
+            #send all clients info to new client
+            sock.sendto(bytes(aci,'utf8'), (addr[0], addr[1]))
+
+
             #make new pair
             clients[addr] = {}
             #populate info
@@ -59,6 +76,14 @@ def connectionLoop(sock):
             for c in clients:
                #send m to c[0](IP), c[1](PORT)
                sock.sendto(bytes(m,'utf8'), (c[0],c[1]))
+
+            idx = 0
+            for player in clients:
+               print("Player " + str(idx))
+               print("IP: " + player[0])
+               print("PORT: " + str(player[1]))
+               idx += 1
+               print("")
 
 def cleanClients():
    while True:
@@ -83,7 +108,7 @@ def gameLoop(sock):
 
       #block
       clients_lock.acquire()
-      print (clients)
+      #print (clients)
       for c in clients:
          player = {}
          clients[c]['color'] = {"R": random.random(), "G": random.random(), "B": random.random()}
@@ -91,7 +116,7 @@ def gameLoop(sock):
          player['color'] = clients[c]['color']
          GameState['players'].append(player)
       s=json.dumps(GameState)
-      print(s)
+      #print(s)
       for c in clients:
          sock.sendto(bytes(s,'utf8'), (c[0],c[1]))
       
