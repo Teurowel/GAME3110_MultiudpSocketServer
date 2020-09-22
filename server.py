@@ -58,6 +58,7 @@ def gameLoop(sock):
 
 def main():
    port = 12345
+   test = 10
    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
    s.bind(('', port))
    start_new_thread(gameLoop, (s,))
