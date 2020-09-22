@@ -41,6 +41,8 @@ def connectionLoop(sock):
       #if it was new client
       else:
          if 'connect' in data:
+
+            ####################Send all client info to new client######################
             #2 = ALL_CLIENT_INFO
             allClientsInfo = {"cmd" : 2,
                               "numOfClients" : len(clients),
@@ -55,17 +57,18 @@ def connectionLoop(sock):
             aci = json.dumps(allClientsInfo)
             #send all clients info to new client
             sock.sendto(bytes(aci,'utf8'), (addr[0], addr[1]))
+            ###############################################################
 
 
-            #make new pair
-            clients[addr] = {}
-            #populate info
-            clients[addr]['lastBeat'] = datetime.now()
-            clients[addr]['color'] = 0
-
+            ################Send new client info to all client###################
             #make message
+            # message = {"cmd" : 0,
+            #            "newClient" : {"id" : str(addr)}
+            #           }
+
             message = {"cmd" : 0,
-                       "player" : {"id" : str(addr)}
+                       "IP" : addr[0],
+                       "PORT" : addr[1]
                       }
 
             #convert python object(message) into json string
@@ -76,7 +79,26 @@ def connectionLoop(sock):
             for c in clients:
                #send m to c[0](IP), c[1](PORT)
                sock.sendto(bytes(m,'utf8'), (c[0],c[1]))
+            ################################################################
 
+
+
+            #####################Add new client to list####################
+            #make new pair
+            clients[addr] = {}
+            #populate info
+            clients[addr]['lastBeat'] = datetime.now()
+            clients[addr]['color'] = 0
+            ################################################################
+
+            
+          
+
+
+           
+
+
+            ###################print all client ##########################
             idx = 0
             for player in clients:
                print("Player " + str(idx))
@@ -84,7 +106,7 @@ def connectionLoop(sock):
                print("PORT: " + str(player[1]))
                idx += 1
                print("")
-
+            ###############################################################
 def cleanClients():
    while True:
       #loop all clinets
