@@ -160,6 +160,7 @@ def connectionLoop(sock):
                print("")
             ###############################################################
 def gameLoop(sock):
+   lastTimeUpdatedColor = datetime.now()
    while True:
       print("game loop")
       
@@ -170,7 +171,11 @@ def gameLoop(sock):
       #print (clients)
       for c in clients:
          player = {}
-         clients[c]['color'] = {"R": random.random(), "G": random.random(), "B": random.random()}
+         
+         if (datetime.now() - lastTimeUpdatedColor).total_seconds() > 1:
+            clients[c]['color'] = {"R": random.random(), "G": random.random(), "B": random.random()}
+            lastTimeUpdatedColor = datetime.now()
+
          player['id'] = str(c)
          player['color'] = clients[c]['color']
          player["pos"] = clients[c]["pos"]
@@ -201,18 +206,18 @@ def cleanClients(sock):
          if (datetime.now() - clients[c]['lastBeat']).total_seconds() > 5:
             print('Dropped Client: ', c)
 
+             #3 for DISCONNECTED_CLIENT
+            disconnectedClientID = {"cmd" : 3,
+                                    "id" : str(c)}
+
+            dci = json.dumps(disconnectedClientID)
+
             #Send message to all client that this client is disconnected
             for player in clients:
                #if it is the disconnected player, skip
                if(player == c):
                   continue
                
-               #3 for DISCONNECTED_CLIENT
-               disconnectedClientInfo = {"cmd" : 3,
-                                         "IP" : c[0],
-                                         "PORT" : c[1]}
-
-               dci = json.dumps(disconnectedClientInfo)
                #send disconnected clients info to all client
                sock.sendto(bytes(dci,'utf8'), (player[0], player[1]))
 
