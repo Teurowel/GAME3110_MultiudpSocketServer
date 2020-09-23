@@ -190,7 +190,7 @@ def gameLoop(sock):
 
 
 
-      time.sleep(1)
+      time.sleep(0.01)
 
 def cleanClients(sock):
    while True:
