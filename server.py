@@ -43,7 +43,7 @@ def connectionLoop(sock):
 
       #convert data to string
       data = str(data)
-      tee = [1, 2, 3]
+
       #check if addr(key) is in clients(dictionary)
       if addr in clients:
          #check if 'heartbeat' object(property) is in data
@@ -62,13 +62,22 @@ def connectionLoop(sock):
             clients[addr]["pos"]["X"] = pos[0]
             clients[addr]["pos"]["Y"] = pos[1]
             clients[addr]["pos"]["Z"] = pos[2]
-         
-
-            print("Position update")
 
       #if it was new client
       else:
          if 'connect' in data:
+            ####################Send IP and PORT info to sender######################
+            #SENDER_IP_PORT
+            senderIPPORT = {"cmd" : 4,
+                            "IP" : addr[0],
+                            "PORT" : addr[1]}
+
+            sIP = json.dumps(senderIPPORT)
+
+            sock.sendto(bytes(sIP,'utf8'), (addr[0], addr[1]))
+            ###############################################################
+
+
             ####################Send all client info to new client######################
             #2 = ALL_CLIENT_INFO
             AllClientInfo = {"cmd": 2, "players": []}
@@ -82,8 +91,8 @@ def connectionLoop(sock):
 
             aci = json.dumps(AllClientInfo)
 
-            for c in clients:
-               sock.sendto(bytes(aci,'utf8'), (c[0],c[1]))
+            #send all clients info to new client
+            sock.sendto(bytes(aci,'utf8'), (addr[0], addr[1]))
 
             # allClientsInfo = {"cmd" : 2,
             #                   "numOfClients" : len(clients),
@@ -109,7 +118,8 @@ def connectionLoop(sock):
 
             newClientInfo = {"cmd" : 0,
                        "id" : str(addr),
-                       "color" : {"R" : 1, "G" : 1, "B" : 1}
+                       "color" : {"R" : 1, "G" : 1, "B" : 1},
+                       "pos" : {"X" : 0, "Y" : 0, "Z" : 0}
                       }
 
             #convert python object(message) into json string
