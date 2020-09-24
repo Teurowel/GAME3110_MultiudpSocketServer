@@ -161,10 +161,15 @@ def connectionLoop(sock):
             ###############################################################
 def gameLoop(sock):
    lastTimeUpdatedColor = datetime.now()
+   ShouldChangeColor = False
    while True:
       print("game loop")
       
       GameState = {"cmd": 1, "players": []}
+
+      #every 1second, update player's color
+      if (datetime.now() - lastTimeUpdatedColor).total_seconds() > 1:
+         ShouldChangeColor = True
 
       #block
       clients_lock.acquire()
@@ -173,9 +178,8 @@ def gameLoop(sock):
          player = {}
          
          #every 1second, update player's color
-         if (datetime.now() - lastTimeUpdatedColor).total_seconds() > 1:
+         if (ShouldChangeColor == True):
             clients[c]['color'] = {"R": random.random(), "G": random.random(), "B": random.random()}
-            lastTimeUpdatedColor = datetime.now()
 
          player['id'] = str(c)
          player['color'] = clients[c]['color']
@@ -192,6 +196,10 @@ def gameLoop(sock):
       #relase the lock
       clients_lock.release()
 
+
+      if(ShouldChangeColor == True):
+         ShouldChangeColor = False
+         lastTimeUpdatedColor = datetime.now()
 
 
 
