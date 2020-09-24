@@ -172,6 +172,7 @@ def gameLoop(sock):
       for c in clients:
          player = {}
          
+         #every 1second, update player's color
          if (datetime.now() - lastTimeUpdatedColor).total_seconds() > 1:
             clients[c]['color'] = {"R": random.random(), "G": random.random(), "B": random.random()}
             lastTimeUpdatedColor = datetime.now()
