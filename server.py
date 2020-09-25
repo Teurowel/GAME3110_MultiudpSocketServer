@@ -63,6 +63,17 @@ def connectionLoop(sock):
             clients[addr]["pos"]["Y"] = pos[1]
             clients[addr]["pos"]["Z"] = pos[2]
 
+         #Extract rotation value(x, y, z)
+         elif "rotation" in data:
+            rot = []
+            for num in data.split():
+               if IsFloat(num):
+                  rot.append(float(num))
+
+            clients[addr]["rot"]["X"] = rot[0]
+            clients[addr]["rot"]["Y"] = rot[1]
+            clients[addr]["rot"]["Z"] = rot[2]
+
       #if it was new client
       else:
          if 'connect' in data:
@@ -87,6 +98,7 @@ def connectionLoop(sock):
                player['id'] = str(c)
                player['color'] = clients[c]['color']
                player["pos"] = clients[c]["pos"]
+               player["rot"] = clients[c]["rot"]
                AllClientInfo['players'].append(player)
 
             aci = json.dumps(AllClientInfo)
@@ -119,7 +131,8 @@ def connectionLoop(sock):
             newClientInfo = {"cmd" : 0,
                        "id" : str(addr),
                        "color" : {"R" : 1, "G" : 1, "B" : 1},
-                       "pos" : {"X" : 0, "Y" : 0, "Z" : 0}
+                       "pos" : {"X" : 0, "Y" : 0, "Z" : 0},
+                       "rot" : {"X" : 0, "Y" : 0, "Z" : 0}
                       }
 
             #convert python object(message) into json string
@@ -141,6 +154,7 @@ def connectionLoop(sock):
             clients[addr]['lastBeat'] = datetime.now()
             clients[addr]['color'] = {"R" : 1, "G" : 1, "B" : 1}
             clients[addr]["pos"] = {"X" : 0, "Y" : 0, "Z" : 0}
+            clients[addr]["rot"] = {"X" : 0, "Y" : 0, "Z" : 0}
             ################################################################
 
             
@@ -184,6 +198,7 @@ def gameLoop(sock):
          player['id'] = str(c)
          player['color'] = clients[c]['color']
          player["pos"] = clients[c]["pos"]
+         player["rot"] = clients[c]["rot"]
          #notify updated pos to all other clients 
 
 
